@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus — Minha Biblioteca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://kit.fontawesome.com/eb30bb42fe.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="css/usuario.css">
+</head>
+<body>
+
+<!-- BARRA DE NAVEGAÇÃO -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="icon">📚</div>
+    <div class="brand"><h2>Campus</h2><span>Minha Biblioteca</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Menu</div>
+    <a class="nav-item active" onclick="showPage('inicio')"><i class="fa-solid fa-house"></i> Início</a>
+    <a class="nav-item" onclick="showPage('meus-emprestimos')"><i class="fa-solid fa-book-open"></i> Meus Empréstimos<span class="badge" id="badgeEmprestimos">0</span></a>
+    <a class="nav-item" onclick="showPage('buscar')"><i class="fa-solid fa-magnifying-glass"></i> Buscar Livros</a>
+    <a class="nav-item" onclick="showPage('historico')"><i class="fa-solid fa-clock-rotate-left"></i> Histórico</a>
+    <a class="nav-item" onclick="showPage('perfil')"><i class="fa-solid fa-user"></i> Meu Perfil</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-card">
+      <div class="av"><i class="fa-solid fa-user-graduate"></i></div>
+     <div class="info">
+    <h4 id="nomeUsuario">Usuário</h4>
+    <span id="matriculaUsuario">Matrícula</span>
+</div>
+      <a href="index.html" class="logout"><i class="fa-solid fa-right-from-bracket"></i></a>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <span class="page-title" id="page-title">Início</span>
+    <div class="topbar-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Buscar título, autor, ISBN...">
+    </div>
+    <div class="icon-btn" title="Notificações">
+      <i class="fa-solid fa-bell"></i>
+      <span class="dot"></span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- INÍCIO -->
+    <div class="page-section active" id="page-inicio">
+
+      <div class="welcome-banner">
+        <div class="wb-text">
+          <h2>Olá, <span id="nomeBoasVindas">Usuário</span>! 👋</h2>
+          <p>Bem-vindo(a) à Biblioteca Campus. Você tem <span id="qtdEmprestimosTexto">0</span> livro(s) emprestado(s).</p>
+          <div class="wb-chips" id="wbChips">
+          </div>
+        </div>
+        <div class="wb-actions">
+          <button class="btn-outline-white" onclick="showPage('buscar')"><i class="fa-solid fa-magnifying-glass"></i> Buscar Livros</button>
+          <button class="btn-cta" onclick="showPage('meus-emprestimos')">Meus Empréstimos</button>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-mini">
+          <div class="sm-icon" style="background:rgba(122,170,206,.15);color:var(--blue-soft)"><i class="fa-solid fa-book-open"></i></div>
+          <div><div class="sm-val" id="statAtivos">0</div><div class="sm-label">Empréstimos ativos</div></div>
+        </div>
+        <div class="stat-mini">
+          <div class="sm-icon" style="background:rgba(76,175,125,.12);color:var(--success)"><i class="fa-solid fa-check-circle"></i></div>
+          <div><div class="sm-val" id="statDevolvidos">0</div><div class="sm-label">Livros devolvidos</div></div>
+        </div>
+        <div class="stat-mini">
+          <div class="sm-icon" style="background:rgba(240,160,48,.12);color:var(--warning)"><i class="fa-solid fa-clock"></i></div>
+          <div><div class="sm-val" id="statProxDevolucao">—</div><div class="sm-label">Próxima devolução</div></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-header">
+            <h3>Empréstimos Ativos</h3>
+            <button class="btn-sm btn-ghost" onclick="showPage('meus-emprestimos')">Ver todos</button>
+          </div>
+          <div class="loans-list" id="listaEmprestimosHome">
+          </div>
+        </div>
+
+        <!-- RECOMENDAÇÕES-->
+        <div class="card">
+          <div class="card-header"><h3>Recomendados para você</h3></div>
+          <div class="book-grid" style="grid-template-columns:1fr 1fr;gap:10px;padding:14px">
+            <div class="book-card" onclick="showPage('buscar')">
+              <div class="book-cover c3">🧪</div>
+              <div class="book-info"><div class="btitle">Sapiens</div><div class="bauthor">Y. N. Harari</div><div class="bavail ok">Disponível</div></div>
+            </div>
+            <div class="book-card" onclick="showPage('buscar')">
+              <div class="book-cover c2">✍</div>
+              <div class="book-info"><div class="btitle">1984</div><div class="bauthor">George Orwell</div><div class="bavail ok">Disponível</div></div>
+            </div>
+            <div class="book-card" onclick="showPage('buscar')">
+              <div class="book-cover c5">🧠</div>
+              <div class="book-info"><div class="btitle">Thinking Fast</div><div class="bauthor">D. Kahneman</div><div class="bavail ok">Disponível</div></div>
+            </div>
+            <div class="book-card" onclick="showPage('buscar')">
+              <div class="book-cover c1">🖥</div>
+              <div class="book-info"><div class="btitle">The Pragmatic</div><div class="bauthor">D. Thomas</div><div class="bavail no">Indisponível</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEUS EMPRÉSTIMOS -->
+    <div class="page-section" id="page-meus-emprestimos">
+      <div class="section-head"><h2>Meus Empréstimos</h2></div>
+      <div class="card">
+        <div class="table-wrap" style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Livro</th><th>Autor</th><th>Retirada</th><th>Devolução Prevista</th><th>Status</th></tr></thead>
+            <tbody id="tabelaEmprestimos">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="alertaVencimento" style="background:rgba(240,160,48,.08);border:1px solid rgba(240,160,48,.25);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;display:none">
+        <i class="fa-solid fa-triangle-exclamation" style="color:var(--warning);font-size:16px"></i>
+        <div>
+          <div id="alertaVencimentoTitulo" style="font-size:13px;font-weight:600;color:var(--text)"></div>
+          <div id="alertaVencimentoDesc" style="font-size:12px;color:var(--text-light);margin-top:2px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUSCAR -->
+    <div class="page-section" id="page-buscar">
+      <div class="section-head"><h2>Buscar Livros</h2></div>
+      <div style="display:flex;gap:10px;margin-bottom:20px">
+        <div style="flex:1;display:flex;align-items:center;background:var(--white);border:1px solid var(--cream-dark);border-radius:10px;padding:10px 16px;gap:10px">
+          <i class="fa-solid fa-magnifying-glass" style="color:var(--text-light)"></i>
+          <input type="text" placeholder="Título, autor, ISBN..." style="border:none;outline:none;font-size:14px;width:100%;font-family:'DM Sans',sans-serif;background:none;color:var(--text)">
+        </div>
+        <select style="padding:10px 16px;border:1px solid var(--cream-dark);border-radius:10px;font-size:13px;background:var(--white);color:var(--text);font-family:'DM Sans',sans-serif;outline:none">
+          <option>Todas as categorias</option>
+          <option>Tecnologia</option>
+          <option>Literatura</option>
+          <option>Ciências</option>
+          <option>Humanas</option>
+          <option>Direito</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Acervo disponível</h3></div>
+        <div class="book-grid">
+          <div class="book-card"><div class="book-cover c1">💻</div><div class="book-info"><div class="btitle">Clean Code</div><div class="bauthor">Robert C. Martin</div><div class="bavail ok">✓ 2 disponíveis</div></div></div>
+          <div class="book-card"><div class="book-cover c2">📖</div><div class="book-info"><div class="btitle">1984</div><div class="bauthor">George Orwell</div><div class="bavail ok">✓ 2 disponíveis</div></div></div>
+          <div class="book-card"><div class="book-cover c3">🌍</div><div class="book-info"><div class="btitle">Sapiens</div><div class="bauthor">Y. N. Harari</div><div class="bavail ok">✓ 3 disponíveis</div></div></div>
+          <div class="book-card"><div class="book-cover c4">⚗</div><div class="book-info"><div class="btitle">Breve Hist. do Tempo</div><div class="bauthor">S. Hawking</div><div class="bavail ok">✓ 1 disponível</div></div></div>
+          <div class="book-card"><div class="book-cover c5">🧠</div><div class="book-info"><div class="btitle">Thinking Fast & Slow</div><div class="bauthor">D. Kahneman</div><div class="bavail ok">✓ 2 disponíveis</div></div></div>
+          <div class="book-card"><div class="book-cover c6">⚙</div><div class="book-info"><div class="btitle">Design Patterns</div><div class="bauthor">Gang of Four</div><div class="bavail no">✗ Indisponível</div></div></div>
+          <div class="book-card"><div class="book-cover c1">🚀</div><div class="book-info"><div class="btitle">The Pragmatic Prog.</div><div class="bauthor">D. Thomas</div><div class="bavail no">✗ Indisponível</div></div></div>
+          <div class="book-card"><div class="book-cover c2">🌹</div><div class="book-info"><div class="btitle">Dom Casmurro</div><div class="bauthor">Machado de Assis</div><div class="bavail ok">✓ 2 disponíveis</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="page-section" id="page-historico">
+      <div class="section-head"><h2>Histórico</h2></div>
+      <div class="card">
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Livro</th><th>Retirada</th><th>Devolução</th><th>Status</th></tr></thead>
+            <tbody id="tabelaHistorico">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+   <!-- PERFIL -->
+<div class="page-section" id="page-perfil">
+  <div class="section-head"><h2>Meu Perfil</h2></div>
+  <div class="card">
+    <div style="padding:20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--cream-dark)">
+      <div style="width:64px;height:64px;background:var(--navy-light);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;border:3px solid var(--blue-soft)">
+        <i class="fa-solid fa-user-graduate"></i>
+      </div>
+      <div>
+        <div id="perfilNomeCabecalho" style="font-family:'Lora',serif;font-size:18px;font-weight:600;color:var(--navy)">
+          Usuário
+        </div>
+        <div id="perfilSubtitulo" style="font-size:13px;color:var(--text-light);margin-top:2px">
+          ---
+        </div>
+        <div id="perfilMatriculaCabecalho" style="font-size:12px;color:var(--blue-soft);margin-top:4px;font-weight:500">
+          Matrícula
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-grid">
+      <div class="profile-field">
+        <label>Nome completo</label>
+        <div class="val" id="perfilNome">Usuário</div>
+      </div>
+
+      <div class="profile-field">
+        <label>Matrícula</label>
+        <div class="val" id="perfilMatricula">---</div>
+      </div>
+
+      <div class="profile-field">
+        <label>E-mail</label>
+        <div class="val" id="perfilEmail">---</div>
+      </div>
+
+      <div class="profile-field">
+        <label>Curso</label>
+        <div class="val" id="perfilCurso">---</div>
+      </div>
+
+      <div class="profile-field">
+        <label>Período</label>
+        <div class="val" id="perfilPeriodo">---</div>
+      </div>
+
+      <div class="profile-field">
+        <label>Status</label>
+        <div class="val" id="perfilStatus" style="color:var(--success);font-weight:600">---</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+</main>
+
+<!-- CHAT  -->
+<div class="chat-fab">
+  <button class="chat-fab-btn" onclick="toggleChat()" title="Ajuda da Biblioteca">
+    <i class="fa-solid fa-comments" id="chat-icon"></i>
+    <span class="notif"></span>
+  </button>
+  <div class="chat-box" id="chat-box">
+    <div class="chat-head">
+      <div class="ch-avatar">📚</div>
+      <div class="ch-info"><h4>Assistente</h4><span>Biblioteca Campus</span></div>
+      <button class="ch-close" onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="msg bot" id="chatMsgBoasVindas">Olá! 😊 Posso te ajudar a encontrar livros, checar prazos ou tirar dúvidas sobre empréstimos.</div>
+      <div class="msg-time">agora</div>
+    </div>
+    <div class="chat-suggestions" id="chat-sugs">
+      <span class="sug-chip" onclick="sendSug(this)">Meus prazos</span>
+      <span class="sug-chip" onclick="sendSug(this)">Renovar livro</span>
+      <span class="sug-chip" onclick="sendSug(this)">Como devolver?</span>
+      <span class="sug-chip" onclick="sendSug(this)">Posso emprestar mais?</span>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Pergunte algo..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="chat-send" onclick="sendMsg()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+<script>
+  carregarDadosUsuario();
+</script>
+</body>
+</html>

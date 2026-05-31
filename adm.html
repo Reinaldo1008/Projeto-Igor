@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus — Painel Administrativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://kit.fontawesome.com/eb30bb42fe.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="css/admin-styles.css">
+</head>
+<body>
+
+<!-- BARRA DE NAVEGAÇÃO-->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:44px;height:44px;background:var(--navy-light);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--gold);font-size:22px">📚</div>
+      <div class="brand">
+        <h2>Campus</h2>
+        <span>Biblioteca · Admin</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <a class="nav-item active" onclick="showPage('dashboard')">
+      <i class="fa-solid fa-chart-pie"></i> Dashboard
+    </a>
+    <a class="nav-item" onclick="showPage('emprestimos')">
+      <i class="fa-solid fa-book-open"></i> Empréstimos
+      <span class="badge" id="badgeEmprestimos">0</span>
+    </a>
+    <a class="nav-item" onclick="showPage('acervo')">
+      <i class="fa-solid fa-book"></i> Acervo
+    </a>
+    <div class="nav-section">Usuários</div>
+    <a class="nav-item" onclick="showPage('alunos')">
+      <i class="fa-solid fa-user-graduate"></i> Alunos
+    </a>
+    <a class="nav-item" onclick="showPage('professores')">
+      <i class="fa-solid fa-chalkboard-user"></i> Professores
+    </a>
+    <div class="nav-section">Controle</div>
+    <a class="nav-item" onclick="showPage('atrasos')">
+      <i class="fa-solid fa-triangle-exclamation"></i> Atrasos
+      <span class="badge" id="badgeAtrasos">0</span>
+    </a>
+    <a class="nav-item" onclick="showPage('historico')">
+      <i class="fa-solid fa-clock-rotate-left"></i> Histórico
+    </a>
+    <a class="nav-item" onclick="showPage('relatorios')">
+      <i class="fa-solid fa-chart-bar"></i> Relatórios
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-mini">
+      <div class="avatar"><i class="fa-solid fa-user"></i></div>
+      <div class="info">
+        <h4 id="adminNome">Administrador</h4>
+        <span id="adminSetor">Biblioteca Central</span>
+      </div>
+      <a href="index.html" class="logout" title="Sair"><i class="fa-solid fa-right-from-bracket"></i></a>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <span class="page-title" id="page-title">Dashboard</span>
+    <div class="topbar-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Buscar livro, aluno, matrícula...">
+    </div>
+    <div class="topbar-actions">
+      <div class="icon-btn" onclick="openModal('novoEmprestimo')" title="Novo empréstimo">
+        <i class="fa-solid fa-plus"></i>
+      </div>
+      <div class="icon-btn" title="Notificações">
+        <i class="fa-solid fa-bell"></i>
+        <span class="dot"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page-section active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card s1">
+          <div class="label">Total de Livros</div>
+          <div class="value" id="statTotalLivros">—</div>
+          <div class="sub" id="statTotalLivrosSub">—</div>
+          <div class="icon-bg"><i class="fa-solid fa-book"></i></div>
+        </div>
+        <div class="stat-card s2">
+          <div class="label">Empréstimos Ativos</div>
+          <div class="value" id="statEmprestimosAtivos">—</div>
+          <div class="sub" id="statEmprestimosAtivosSub">—</div>
+          <div class="icon-bg"><i class="fa-solid fa-book-open"></i></div>
+        </div>
+        <div class="stat-card s3">
+          <div class="label">Devoluções Hoje</div>
+          <div class="value" id="statDevolucoesHoje">—</div>
+          <div class="sub" id="statDevolucoesHojeSub">—</div>
+          <div class="icon-bg"><i class="fa-solid fa-rotate-left"></i></div>
+        </div>
+        <div class="stat-card s4">
+          <div class="label">Em Atraso</div>
+          <div class="value" id="statAtraso">—</div>
+          <div class="sub" id="statAtrasoSub">—</div>
+          <div class="icon-bg"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- EMPRÉSTIMOS RECENTES -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Empréstimos Recentes</h3>
+            <div class="actions">
+              <button class="btn-sm btn-primary" onclick="openModal('novoEmprestimo')"><i class="fa-solid fa-plus"></i> Novo</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Usuário</th><th>Livro</th><th>Devolução</th><th>Status</th></tr>
+              </thead>
+              <tbody id="tabelaEmprestimosRecentes">
+                <!-- preenchido via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- COLUNA LATERAL-->
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <!-- DISPONIBILIDADE -->
+          <div class="card">
+            <div class="card-header"><h3>Disponibilidade do Acervo</h3></div>
+            <div class="avail-wrap">
+              <div class="ring-wrap">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#e8e9e0" stroke-width="10"/>
+                  <circle id="ringDisponivel" cx="50" cy="50" r="40" fill="none" stroke="#4caf7d" stroke-width="10" stroke-dasharray="0 251" stroke-linecap="round"/>
+                  <circle id="ringAtrasado" cx="50" cy="50" r="40" fill="none" stroke="#e05c5c" stroke-width="10" stroke-dasharray="0 251" stroke-dashoffset="0" stroke-linecap="round"/>
+                </svg>
+                <div class="ring-center"><div class="pct" id="ringPct">—</div><small>disponível</small></div>
+              </div>
+              <div class="avail-legend">
+                <div class="leg-item"><div class="leg-dot" style="background:#4caf7d"></div>Disponíveis — <span id="legendDisp">—</span></div>
+                <div class="leg-item"><div class="leg-dot" style="background:#7AAACE"></div>Emprestados — <span id="legendEmp">—</span></div>
+                <div class="leg-item"><div class="leg-dot" style="background:#e05c5c"></div>Em atraso — <span id="legendAtr">—</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AÇÕES RÁPIDAS -->
+          <div class="card">
+            <div class="card-header"><h3>Ações Rápidas</h3></div>
+            <div class="quick-actions">
+              <div class="qa-btn" onclick="openModal('novoEmprestimo')">
+                <div class="qa-icon"><i class="fa-solid fa-book-open"></i></div>
+                <div><div class="qa-label">Novo Empréstimo</div><div class="qa-sub">Registrar saída</div></div>
+              </div>
+              <div class="qa-btn" onclick="openModal('devolucao')">
+                <div class="qa-icon"><i class="fa-solid fa-rotate-left"></i></div>
+                <div><div class="qa-label">Registrar Devolução</div><div class="qa-sub">Dar baixa</div></div>
+              </div>
+              <div class="qa-btn" onclick="showPage('acervo')">
+                <div class="qa-icon"><i class="fa-solid fa-plus"></i></div>
+                <div><div class="qa-label">Cadastrar Livro</div><div class="qa-sub">Novo título</div></div>
+              </div>
+              <div class="qa-btn" onclick="showPage('alunos')">
+                <div class="qa-icon"><i class="fa-solid fa-user-plus"></i></div>
+                <div><div class="qa-label">Cadastrar Usuário</div><div class="qa-sub">Aluno / Prof.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATIVIDADE + CATEGORIAS -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Atividade Recente</h3></div>
+          <div class="feed" id="feedAtividade">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>Empréstimos por Categoria</h3></div>
+          <div class="bar-chart" id="barCategorias">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPRÉSTIMOS PAGE -->
+    <div class="page-section" id="page-emprestimos">
+      <div class="section-head">
+        <h2>Empréstimos</h2>
+        <button class="btn-sm btn-primary" onclick="openModal('novoEmprestimo')"><i class="fa-solid fa-plus"></i> Novo Empréstimo</button>
+      </div>
+      <div class="tabs" style="margin-bottom:20px">
+        <button class="tab active" onclick="filterTab(this,'todos')">Todos</button>
+        <button class="tab" onclick="filterTab(this,'ativos')">Ativos</button>
+        <button class="tab" onclick="filterTab(this,'atrasados')">Atrasados</button>
+        <button class="tab" onclick="filterTab(this,'devolvidos')">Devolvidos</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Usuário</th><th>Matrícula</th><th>Livro</th><th>Retirada</th><th>Devolução Prev.</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tabelaEmprestimos">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALUNOS PAGE -->
+    <div class="page-section" id="page-alunos">
+      <div class="section-head">
+        <h2>Alunos</h2>
+        <button class="btn-sm btn-primary"><i class="fa-solid fa-user-plus"></i> Cadastrar Aluno</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>Matrícula</th><th>Curso</th><th>E-mail</th><th>Empréstimos</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tabelaAlunos">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFESSORES -->
+    <div class="page-section" id="page-professores">
+      <div class="section-head"><h2>Professores</h2><button class="btn-sm btn-primary"><i class="fa-solid fa-user-plus"></i> Cadastrar Professor</button></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>ID Funcional</th><th>Departamento</th><th>E-mail</th><th>Empréstimos</th><th>Status</th></tr></thead>
+            <tbody id="tabelaProfessores">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACERVO -->
+    <div class="page-section" id="page-acervo">
+      <div class="section-head"><h2>Acervo</h2><button class="btn-sm btn-primary"><i class="fa-solid fa-plus"></i> Adicionar Livro</button></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Título</th><th>Autor</th><th>Categoria</th><th>ISBN</th><th>Cópias</th><th>Disponíveis</th><th>Status</th></tr></thead>
+            <tbody id="tabelaAcervo">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATRASOS -->
+    <div class="page-section" id="page-atrasos">
+      <div class="section-head"><h2>Atrasos</h2></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Usuário</th><th>Matrícula</th><th>Livro</th><th>Devol. Prevista</th><th>Dias em Atraso</th><th>Ações</th></tr></thead>
+            <tbody id="tabelaAtrasos">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="page-section" id="page-historico">
+      <div class="section-head"><h2>Histórico de Empréstimos</h2></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Usuário</th><th>Livro</th><th>Retirada</th><th>Devolução</th><th>Status</th></tr></thead>
+            <tbody id="tabelaHistorico">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-section" id="page-relatorios">
+      <div class="section-head"><h2>Relatórios</h2></div>
+      <div class="grid-3">
+        <div class="card" style="padding:20px;text-align:center;cursor:pointer">
+          <i class="fa-solid fa-file-csv" style="font-size:32px;color:var(--success);margin-bottom:10px"></i>
+          <div style="font-weight:600;color:var(--navy)">Exportar Empréstimos</div>
+          <div style="font-size:12px;color:var(--text-light);margin-top:4px">CSV com todos os registros</div>
+        </div>
+        <div class="card" style="padding:20px;text-align:center;cursor:pointer">
+          <i class="fa-solid fa-file-pdf" style="font-size:32px;color:var(--danger);margin-bottom:10px"></i>
+          <div style="font-weight:600;color:var(--navy)">Relatório de Atrasos</div>
+          <div style="font-size:12px;color:var(--text-light);margin-top:4px">PDF com pendências</div>
+        </div>
+        <div class="card" style="padding:20px;text-align:center;cursor:pointer">
+          <i class="fa-solid fa-chart-bar" style="font-size:32px;color:var(--blue-soft);margin-bottom:10px"></i>
+          <div style="font-weight:600;color:var(--navy)">Relatório Mensal</div>
+          <div style="font-size:12px;color:var(--text-light);margin-top:4px">Resumo de maio/2025</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-novoEmprestimo">
+  <div class="modal">
+    <h3><i class="fa-solid fa-book-open" style="color:var(--blue-soft);margin-right:8px"></i>Novo Empréstimo</h3>
+    <div class="form-group">
+      <label>Matrícula / ID Funcional</label>
+      <input type="text" placeholder="Ex: 2024001 ou Prof.00412">
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin:0">
+        <label>Nome do Usuário</label>
+        <input type="text" placeholder="Busca automática" readonly>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>Tipo</label>
+        <select><option>Aluno</option><option>Professor</option></select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>ISBN ou Título do Livro</label>
+      <input type="text" placeholder="Ex: 978-0132350884 ou Clean Code">
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin:0">
+        <label>Data de Retirada</label>
+        <input type="date">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>Devolução Prevista</label>
+        <input type="date">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-md btn-ghost" onclick="closeModal('novoEmprestimo')">Cancelar</button>
+      <button class="btn-md btn-primary">Registrar Empréstimo</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-devolucao">
+  <div class="modal">
+    <h3><i class="fa-solid fa-rotate-left" style="color:var(--success);margin-right:8px"></i>Registrar Devolução</h3>
+    <div class="form-group">
+      <label>Matrícula / ID Funcional</label>
+      <input type="text" placeholder="Ex: 2024001">
+    </div>
+    <div class="form-group">
+      <label>Livro</label>
+      <select>
+        <option>Clean Code — Ana Silva</option>
+        <option>O Hobbit — Julia Santos</option>
+        <option>1984 — Maria Costa</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Data de Devolução</label>
+      <input type="date">
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <input type="text" placeholder="Estado do livro, observações...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-md btn-ghost" onclick="closeModal('devolucao')">Cancelar</button>
+      <button class="btn-md" style="background:var(--success);color:#fff">Confirmar Devolução</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT BALÃO-->
+<div class="chat-fab">
+  <button class="chat-fab-btn" onclick="toggleChat()" title="Assistente da Biblioteca">
+    <i class="fa-solid fa-robot" id="chat-icon"></i>
+    <span class="notif"></span>
+  </button>
+  <div class="chat-box" id="chat-box">
+    <div class="chat-head">
+      <div class="ch-avatar">📚</div>
+      <div class="ch-info"><h4>Assistente Biblioteca</h4><span>Online agora</span></div>
+      <button class="ch-close" onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="msg bot">Olá, Admin! 👋 Sou o assistente da biblioteca. Posso te ajudar com empréstimos, consultas e relatórios.</div>
+      <div class="msg-time">agora</div>
+    </div>
+    <div class="chat-suggestions" id="chat-sugs">
+      <span class="sug-chip" onclick="sendSug(this)">Livros em atraso</span>
+      <span class="sug-chip" onclick="sendSug(this)">Novo empréstimo</span>
+      <span class="sug-chip" onclick="sendSug(this)">Relatório do dia</span>
+      <span class="sug-chip" onclick="sendSug(this)">Livros disponíveis</span>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="chat-send" onclick="sendMsg()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
+<script src="script-admin.js"></script>
+<script>carregarDadosAdmin();</script>
+</body>
+</html>
