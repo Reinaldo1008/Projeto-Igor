@@ -17,17 +17,17 @@
         </div>
 
         <div class="form-box login">
-            <form action="">
+            <form id="formLogin">
                 <img src="css/loginempréstimo.png" alt="Logo" class="logo-top">
                 <h1>Login</h1>
 
-             <div class="input-box">
-    <input type="text" placeholder="CPF ou Matrícula" name="cpf_matricula" required>
-    <i class="fa-solid fa-id-card"></i>
-</div>
+                <div class="input-box">
+                    <input type="text" placeholder="CPF ou Matrícula" name="cpf_matricula" required>
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
 
                 <div class="input-box">
-                    <input type="password" placeholder="Senha" required>
+                    <input type="password" placeholder="Senha" name="senha" required>
                     <i class="fa-solid fa-lock"></i>
                 </div>
 
@@ -53,6 +53,38 @@
         </div>
 
     </div>
+
+    <script>
+        document.getElementById('formLogin').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const identificador = document.querySelector('input[name="cpf_matricula"]').value;
+            const senha = document.querySelector('input[name="senha"]').value;
+
+            try {
+                const resposta = await fetch('http://localhost:8000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identificador, senha })
+                });
+
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+                    alert('Bem-vindo, ' + dados.usuario.nome + '!');
+                    if (dados.usuario.tipo === 'professor') {
+                        window.location.href = 'adm.html';
+                    } else {
+                        window.location.href = 'usuario.html';
+                    }
+                } else {
+                    alert('Erro: ' + dados.detail);
+                }
+            } catch (erro) {
+                alert('Não foi possível conectar à API. Verifique se o servidor está rodando.');
+            }
+        });
+    </script>
 
 </body>
 </html>
