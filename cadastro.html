@@ -89,7 +89,7 @@
             }
 
             try {
-                const resposta = await fetch('http://localhost:8000/cadastro', {
+                const resposta = await fetch('https://projeto-igor.onrender.com/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ cpf, senha, email, nome, tipo })
