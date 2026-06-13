@@ -62,7 +62,7 @@
             const senha = document.querySelector('input[name="senha"]').value;
 
             try {
-                const resposta = await fetch('https://projeto-igor.onrender.com', {
+                const resposta = await fetch('https://projeto-igor.onrender.com/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ identificador, senha })
