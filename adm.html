@@ -79,12 +79,25 @@
       <div class="icon-btn" onclick="openModal('novoEmprestimo')" title="Novo empréstimo">
         <i class="fa-solid fa-plus"></i>
       </div>
-      <div class="icon-btn" title="Notificações">
+      <div class="icon-btn" onclick="toggleChat()" title="Mensagens" style="position:relative">
         <i class="fa-solid fa-bell"></i>
         <span class="dot"></span>
       </div>
     </div>
   </header>
+
+  <!-- CHAT BOX ancorado no sininho -->
+  <div class="chat-box" id="chat-box" style="position:fixed;top:64px;right:16px;z-index:999;display:none">
+    <div class="chat-head">
+      <div class="ch-avatar">📚</div>
+      <div class="ch-info"><h4>Mensagens dos Usuários</h4><span>Biblioteca Campus</span></div>
+      <button class="ch-close" onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="msg bot">Olá, Admin! 👋 Aqui aparecem as mensagens enviadas pelos usuários.</div>
+    </div>
+    <div class="chat-input-row" style="display:none"></div>
+  </div>
 
   <div class="content">
 
@@ -468,35 +481,6 @@
   </div>
 </div>
 
-<!-- CHAT BALÃO-->
-<div class="chat-fab">
-  <button class="chat-fab-btn" onclick="toggleChat()" title="Assistente da Biblioteca">
-    <i class="fa-solid fa-robot" id="chat-icon"></i>
-    <span class="notif"></span>
-  </button>
-  <div class="chat-box" id="chat-box">
-    <div class="chat-head">
-      <div class="ch-avatar">📚</div>
-      <div class="ch-info"><h4>Assistente Biblioteca</h4><span>Online agora</span></div>
-      <button class="ch-close" onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="chat-msgs" id="chat-msgs">
-      <div class="msg bot">Olá, Admin! 👋 Sou o assistente da biblioteca. Posso te ajudar com empréstimos, consultas e relatórios.</div>
-      <div class="msg-time">agora</div>
-    </div>
-    <div class="chat-suggestions" id="chat-sugs">
-      <span class="sug-chip" onclick="sendSug(this)">Livros em atraso</span>
-      <span class="sug-chip" onclick="sendSug(this)">Novo empréstimo</span>
-      <span class="sug-chip" onclick="sendSug(this)">Relatório do dia</span>
-      <span class="sug-chip" onclick="sendSug(this)">Livros disponíveis</span>
-    </div>
-    <div class="chat-input-row">
-      <input type="text" id="chat-input" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter')sendMsg()">
-      <button class="chat-send" onclick="sendMsg()"><i class="fa-solid fa-paper-plane"></i></button>
-    </div>
-  </div>
-</div>
-
 <script>
 function showPage(id) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
@@ -547,7 +531,7 @@ document.addEventListener('click', function(e) {
 
 function toggleChat() {
   const box = document.getElementById('chat-box');
-  if (box) box.classList.toggle('open');
+  if (box) box.style.display = box.style.display === 'none' ? 'flex' : 'none';
 }
 
 function sendMsg() {
@@ -568,7 +552,7 @@ function sendSug(el) {
   msgs.scrollTop = msgs.scrollHeight;
 }
 
-const API = 'https://projeto-igor.onrender.com';
+const API = 'http://localhost:8000';
 
 function carregarDadosAdmin() {
   carregarEmprestimosAdmin();
