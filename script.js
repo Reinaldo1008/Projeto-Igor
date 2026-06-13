@@ -1,10 +1,7 @@
-// =========================================================================
-// CONFIGURAÇÃO — troque pela URL do Render quando publicar
-// =========================================================================
-const API = 'http://localhost:8000';
+const API = 'https://projeto-igor.onrender.com';
 
 // =========================================================================
-// DADOS DO USUÁRIO LOGADO (salvo no sessionStorage pelo index.html)
+// DADOS DO USUÁRIO LOGADO
 // =========================================================================
 function getUsuario() {
   const u = sessionStorage.getItem('usuario');
