@@ -17,7 +17,7 @@
         </div>
 
         <div class="form-box login">
-            <form action="">
+            <form id="formCadastro">
                 <img src="css/loginempréstimo.png" alt="Logo" class="logo-top">
                 <h1>Cadastro</h1>
 
@@ -46,6 +46,16 @@
                     <i class="fa-solid fa-lock"></i>
                 </div>
 
+                <div class="input-box">
+                    <select name="tipo" required>
+                        <option value="" disabled selected>Selecione o tipo de usuário</option>
+                        <option value="aluno">Aluno</option>
+                        <option value="professor">Professor</option>
+                        <option value="adm">Bibliotecário</option>
+                    </select>
+                    <i class="fa-solid fa-users"></i>
+                </div>
+
                 <div class="remember-forgot">
                     <label>
                         <input type="checkbox" required> Aceito os <a href="#">termos de uso</a>
@@ -61,6 +71,43 @@
         </div>
 
     </div>
+
+    <script>
+        document.getElementById('formCadastro').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const nome     = document.querySelector('input[name="nome"]').value;
+            const cpf      = document.querySelector('input[name="cpf_matricula"]').value;
+            const email    = document.querySelector('input[type="email"]').value;
+            const senha    = document.querySelector('input[name="senha"]').value;
+            const confirmar = document.querySelector('input[name="confirmar_senha"]').value;
+            const tipo     = document.querySelector('select[name="tipo"]').value;
+
+            if (senha !== confirmar) {
+                alert('As senhas não coincidem!');
+                return;
+            }
+
+            try {
+                const resposta = await fetch('http://localhost:8000/cadastro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cpf, senha, email, nome, tipo })
+                });
+
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+                    alert('Cadastro realizado com sucesso!');
+                    window.location.href = 'index.html';
+                } else {
+                    alert('Erro: ' + dados.detail);
+                }
+            } catch (erro) {
+                alert('Não foi possível conectar à API. Verifique se o servidor está rodando.');
+            }
+        });
+    </script>
 
 </body>
 </html>

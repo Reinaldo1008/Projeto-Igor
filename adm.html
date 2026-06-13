@@ -257,11 +257,11 @@
 
     <!-- ACERVO -->
     <div class="page-section" id="page-acervo">
-      <div class="section-head"><h2>Acervo</h2><button class="btn-sm btn-primary"><i class="fa-solid fa-plus"></i> Adicionar Livro</button></div>
+      <div class="section-head"><h2>Acervo</h2><button class="btn-sm btn-primary" onclick="openModal('cadastrarLivro')"><i class="fa-solid fa-plus"></i> Adicionar Livro</button></div>
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Título</th><th>Autor</th><th>Categoria</th><th>ISBN</th><th>Cópias</th><th>Disponíveis</th><th>Status</th></tr></thead>
+            <thead><tr><th>Título</th><th>Autor</th><th>Categoria</th><th>ISBN</th><th>Cópias</th><th>Disponíveis</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody id="tabelaAcervo">
             </tbody>
           </table>
@@ -390,6 +390,55 @@
   </div>
 </div>
 
+<!-- MODAL ACEITAR EMPRÉSTIMO -->
+<div class="modal-overlay" id="modal-aceitarEmprestimo">
+  <div class="modal">
+    <h3><i class="fa-solid fa-check" style="color:var(--success);margin-right:8px"></i>Aceitar Empréstimo</h3>
+    <div class="form-group">
+      <label>Data de Devolução Prevista</label>
+      <input type="date" id="dataDevPrevista">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-md btn-ghost" onclick="closeModal('aceitarEmprestimo')">Cancelar</button>
+      <button class="btn-md btn-primary" onclick="confirmarAceitar()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CADASTRAR LIVRO -->
+<div class="modal-overlay" id="modal-cadastrarLivro">
+  <div class="modal">
+    <h3><i class="fa-solid fa-book" style="color:var(--blue-soft);margin-right:8px"></i>Cadastrar Livro</h3>
+    <div class="form-group">
+      <label>Título</label>
+      <input type="text" id="livroTitulo" placeholder="Ex: Clean Code">
+    </div>
+    <div class="form-group">
+      <label>Autor</label>
+      <input type="text" id="livroAutor" placeholder="Ex: Robert C. Martin">
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin:0">
+        <label>Categoria</label>
+        <input type="text" id="livroCategoria" placeholder="Ex: Programação">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>ISBN (opcional)</label>
+        <input type="text" id="livroIsbn" placeholder="Ex: 978-0132350884">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Número de Cópias</label>
+      <input type="number" id="livroCopias" value="1" min="1">
+    </div>
+    <div id="livroErro" style="color:red;font-size:13px;display:none;margin-bottom:8px"></div>
+    <div class="modal-footer">
+      <button class="btn-md btn-ghost" onclick="closeModal('cadastrarLivro')">Cancelar</button>
+      <button class="btn-md btn-primary" onclick="cadastrarLivro()">Cadastrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- CHAT BALÃO-->
 <div class="chat-fab">
   <button class="chat-fab-btn" onclick="toggleChat()" title="Assistente da Biblioteca">
@@ -490,7 +539,261 @@ function sendSug(el) {
   msgs.scrollTop = msgs.scrollHeight;
 }
 
-function carregarDadosAdmin() {}
+const API = 'http://localhost:8000';
+
+function carregarDadosAdmin() {
+  carregarEmprestimosAdmin();
+  carregarAcervo();
+  carregarMensagensAdmin();
+}
+
+// =========================================================================
+// EMPRÉSTIMOS
+// =========================================================================
+async function carregarEmprestimosAdmin() {
+  try {
+    const resp = await fetch(`${API}/emprestimos`);
+    const emps = await resp.json();
+
+    const pendentes = emps.filter(e => e.status === 'pendente');
+    const ativos    = emps.filter(e => e.status === 'ativo');
+
+    // Badge sidebar
+    const badge = document.getElementById('badgeEmprestimos');
+    if (badge) badge.textContent = pendentes.length;
+
+    // Tabela principal empréstimos
+    const tbody = document.getElementById('tabelaEmprestimos');
+    if (tbody) {
+      tbody.innerHTML = emps.length
+        ? emps.map(e => `
+          <tr>
+            <td>${e.nome_aluno}</td>
+            <td>${e.cpf_aluno}</td>
+            <td>${e.titulo_livro}</td>
+            <td>${e.data_solicitacao}</td>
+            <td>${e.data_devolucao_prevista || '—'}</td>
+            <td><span style="color:${statusCor(e.status)};font-weight:600">${statusLabel(e.status)}</span></td>
+            <td>${botoesAcao(e)}</td>
+          </tr>`).join('')
+        : '<tr><td colspan="7" style="text-align:center;color:#aaa">Nenhum empréstimo.</td></tr>';
+    }
+
+    // Tabela resumida dashboard
+    const tbodyRec = document.getElementById('tabelaEmprestimosRecentes');
+    if (tbodyRec) {
+      const recentes = emps.slice(0, 5);
+      tbodyRec.innerHTML = recentes.length
+        ? recentes.map(e => `
+          <tr>
+            <td>${e.nome_aluno}</td>
+            <td>${e.titulo_livro}</td>
+            <td>${e.data_devolucao_prevista || '—'}</td>
+            <td><span style="color:${statusCor(e.status)}">${statusLabel(e.status)}</span></td>
+          </tr>`).join('')
+        : '<tr><td colspan="4" style="text-align:center;color:#aaa">Nenhum empréstimo.</td></tr>';
+    }
+
+    // Stats dashboard
+    const statEmp = document.getElementById('statEmprestimosAtivos');
+    if (statEmp) statEmp.textContent = ativos.length;
+    const statAtr = document.getElementById('statAtraso');
+    if (statAtr) statAtr.textContent = pendentes.length;
+    const badgeAtr = document.getElementById('badgeAtrasos');
+    if (badgeAtr) badgeAtr.textContent = pendentes.length;
+
+  } catch(e) { console.error('Erro ao carregar empréstimos:', e); }
+}
+
+function botoesAcao(e) {
+  if (e.status === 'pendente') return `
+    <button class="btn-sm" style="background:#4caf7d;color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;margin-right:4px"
+      onclick="abrirModalAceitar(${e.id})">Aceitar</button>
+    <button class="btn-sm" style="background:#e05c5c;color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer"
+      onclick="rejeitarEmprestimo(${e.id})">Rejeitar</button>`;
+  if (e.status === 'ativo') return `
+    <button class="btn-sm" style="background:#7aaace;color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer"
+      onclick="devolverEmprestimo(${e.id})">Devolvido</button>`;
+  return '—';
+}
+
+function statusLabel(s) {
+  return { pendente: 'Pendente', ativo: 'Ativo', devolvido: 'Devolvido', rejeitado: 'Rejeitado' }[s] || s;
+}
+function statusCor(s) {
+  return { pendente: '#f0a030', ativo: '#4caf7d', devolvido: '#7aaace', rejeitado: '#e05c5c' }[s] || '#888';
+}
+
+let empIdAceitar = null;
+
+function abrirModalAceitar(id) {
+  empIdAceitar = id;
+  openModal('aceitarEmprestimo');
+}
+
+async function confirmarAceitar() {
+  const data = document.getElementById('dataDevPrevista').value;
+  if (!data) return alert('Informe a data de devolução.');
+  try {
+    const resp = await fetch(`${API}/emprestimos/${empIdAceitar}/aceitar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data_devolucao_prevista: data })
+    });
+    const dados = await resp.json();
+    alert(resp.ok ? '✅ ' + dados.message : '❌ ' + dados.detail);
+    closeModal('aceitarEmprestimo');
+    carregarEmprestimosAdmin();
+    carregarAcervo();
+  } catch(e) { alert('Erro ao conectar à API.'); }
+}
+
+async function rejeitarEmprestimo(id) {
+  if (!confirm('Rejeitar este empréstimo?')) return;
+  try {
+    const resp = await fetch(`${API}/emprestimos/${id}/rejeitar`, { method: 'PUT' });
+    const dados = await resp.json();
+    alert(resp.ok ? '✅ ' + dados.message : '❌ ' + dados.detail);
+    carregarEmprestimosAdmin();
+  } catch(e) { alert('Erro ao conectar à API.'); }
+}
+
+async function devolverEmprestimo(id) {
+  if (!confirm('Confirmar devolução deste livro?')) return;
+  try {
+    const resp = await fetch(`${API}/emprestimos/${id}/devolver`, { method: 'PUT' });
+    const dados = await resp.json();
+    alert(resp.ok ? '✅ ' + dados.message : '❌ ' + dados.detail);
+    carregarEmprestimosAdmin();
+    carregarAcervo();
+  } catch(e) { alert('Erro ao conectar à API.'); }
+}
+
+// =========================================================================
+// ACERVO
+// =========================================================================
+async function carregarAcervo() {
+  try {
+    const resp  = await fetch(`${API}/livros`);
+    const livros = await resp.json();
+    const tbody = document.getElementById('tabelaAcervo');
+    if (!tbody) return;
+    tbody.innerHTML = livros.length
+      ? livros.map(l => `
+          <tr>
+            <td>${l.titulo}</td><td>${l.autor}</td><td>${l.categoria}</td>
+            <td>${l.isbn || '—'}</td><td>${l.copias}</td><td>${l.disponiveis}</td>
+            <td><span style="color:${l.disponiveis > 0 ? 'green' : 'red'}">${l.status}</span></td>
+            <td><button class="btn-sm" style="background:#e05c5c;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer"
+              onclick="deletarLivro(${l.id})">Remover</button></td>
+          </tr>`).join('')
+      : '<tr><td colspan="8" style="text-align:center;color:#aaa">Nenhum livro cadastrado.</td></tr>';
+
+    const statLivros = document.getElementById('statTotalLivros');
+    if (statLivros) statLivros.textContent = livros.length;
+  } catch(e) { console.error('Erro ao carregar acervo:', e); }
+}
+
+async function cadastrarLivro() {
+  const titulo    = document.getElementById('livroTitulo').value.trim();
+  const autor     = document.getElementById('livroAutor').value.trim();
+  const categoria = document.getElementById('livroCategoria').value.trim();
+  const isbn      = document.getElementById('livroIsbn').value.trim();
+  const copias    = parseInt(document.getElementById('livroCopias').value);
+  const erroEl    = document.getElementById('livroErro');
+
+  if (!titulo || !autor || !categoria) {
+    erroEl.textContent = 'Preencha título, autor e categoria.';
+    erroEl.style.display = 'block'; return;
+  }
+  erroEl.style.display = 'none';
+  try {
+    const resp = await fetch(`${API}/livros`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ titulo, autor, categoria, isbn: isbn || null, copias })
+    });
+    const dados = await resp.json();
+    if (resp.ok) {
+      alert('Livro cadastrado!');
+      closeModal('cadastrarLivro');
+      ['livroTitulo','livroAutor','livroCategoria','livroIsbn'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('livroCopias').value = '1';
+      carregarAcervo();
+    } else {
+      erroEl.textContent = dados.detail || 'Erro ao cadastrar.';
+      erroEl.style.display = 'block';
+    }
+  } catch(e) { erroEl.textContent = 'Não foi possível conectar à API.'; erroEl.style.display = 'block'; }
+}
+
+async function deletarLivro(id) {
+  if (!confirm('Remover este livro?')) return;
+  try {
+    const resp = await fetch(`${API}/livros/${id}`, { method: 'DELETE' });
+    if (resp.ok) carregarAcervo();
+    else alert('Erro ao remover.');
+  } catch(e) { alert('Erro ao conectar à API.'); }
+}
+
+// =========================================================================
+// MENSAGENS (CHAT ADMIN)
+// =========================================================================
+async function carregarMensagensAdmin() {
+  try {
+    const resp = await fetch(`${API}/mensagens`);
+    const msgs = await resp.json();
+    const container = document.getElementById('chat-msgs');
+    if (!container) return;
+
+    container.innerHTML = msgs.length
+      ? msgs.map(m => `
+          <div style="background:#f5f5f0;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px">
+            <div style="font-weight:600;color:#1a2a4a;margin-bottom:4px">
+              ${m.nome_remetente} <span style="font-weight:400;color:#888">(${m.tipo_remetente}) — ${m.data_envio}</span>
+            </div>
+            <div style="color:#333;margin-bottom:6px">${m.mensagem}</div>
+            ${m.resposta
+              ? `<div style="background:#e8f4e8;border-radius:6px;padding:6px 10px;font-size:12px;color:#2d7a4f">✅ Respondido: ${m.resposta}</div>`
+              : `<div style="display:flex;gap:6px;margin-top:6px">
+                  <input id="resp-${m.id}" type="text" placeholder="Escrever resposta..." style="flex:1;padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px">
+                  <button onclick="responderMensagem(${m.id})" style="background:#1a2a4a;color:#fff;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:12px">Enviar</button>
+                </div>`
+            }
+          </div>`).join('')
+      : '<div class="msg bot">Nenhuma mensagem recebida ainda.</div>';
+
+  } catch(e) { console.error('Erro ao carregar mensagens:', e); }
+}
+
+async function responderMensagem(id) {
+  const input = document.getElementById(`resp-${id}`);
+  const texto = input.value.trim();
+  if (!texto) return alert('Digite uma resposta.');
+  try {
+    const resp = await fetch(`${API}/mensagens/${id}/responder`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resposta: texto })
+    });
+    if (resp.ok) { alert('Resposta enviada!'); carregarMensagensAdmin(); }
+    else alert('Erro ao responder.');
+  } catch(e) { alert('Erro ao conectar à API.'); }
+}
+
+function sendMsg() {
+  // No painel admin o chat é só leitura/resposta, não envia novas mensagens
+}
+
+function sendSug(el) {
+  const msgs = document.getElementById('chat-msgs');
+  msgs.innerHTML += `<div class="msg user">${el.textContent}</div>`;
+  const sugs = document.getElementById('chat-sugs');
+  if (sugs) sugs.style.display = 'none';
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+document.addEventListener('DOMContentLoaded', carregarDadosAdmin);
 </script>
 </body>
 </html>

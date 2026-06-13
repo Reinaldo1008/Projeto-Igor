@@ -79,7 +79,7 @@ form {
 
 .input-box {
     position: relative;
-    margin: 10px 0;
+    margin: 7px 0;
     width: 100%;
 }
 
@@ -172,7 +172,7 @@ p {
 }
 
 .register-link {
-    margin-top: 10px;
+    margin-top: 0px;
     font-size: 13px;
     color: #777;
 }
