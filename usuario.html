@@ -253,58 +253,6 @@
 <script src="script.js"></script>
 <script>
   carregarDadosUsuario();
-
-  const cores = ['c1','c2','c3','c4','c5','c6'];
-  const emojis = ['📚','📖','💻','🌍','🧠','⚗','✍','🚀','⚙','🌹','🧪','📝'];
-
-  async function carregarLivros() {
-    try {
-      const resp = await fetch('http://localhost:8000/livros');
-      const livros = await resp.json();
-
-      // Grid acervo completo (página buscar)
-      const gridAcervo = document.getElementById('gridAcervo');
-      if (!livros.length) {
-        gridAcervo.innerHTML = '<div style="padding:20px;color:#aaa;text-align:center;grid-column:1/-1">Nenhum livro cadastrado no acervo.</div>';
-      } else {
-        gridAcervo.innerHTML = livros.map((l, i) => `
-          <div class="book-card">
-            <div class="book-cover ${cores[i % cores.length]}">${emojis[i % emojis.length]}</div>
-            <div class="book-info">
-              <div class="btitle">${l.titulo}</div>
-              <div class="bauthor">${l.autor}</div>
-              <div class="bavail ${l.disponiveis > 0 ? 'ok' : 'no'}">
-                ${l.disponiveis > 0 ? '✓ ' + l.disponiveis + ' disponível(is)' : '✗ Indisponível'}
-              </div>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      // Grid recomendados (página início) — mostra até 4 livros disponíveis
-      const gridRec = document.getElementById('gridRecomendados');
-      const disponiveis = livros.filter(l => l.disponiveis > 0).slice(0, 4);
-      if (!disponiveis.length) {
-        gridRec.innerHTML = '<div style="color:#aaa;font-size:13px;grid-column:1/-1;text-align:center">Sem livros disponíveis no momento.</div>';
-      } else {
-        gridRec.innerHTML = disponiveis.map((l, i) => `
-          <div class="book-card" onclick="showPage('buscar')">
-            <div class="book-cover ${cores[i % cores.length]}">${emojis[i % emojis.length]}</div>
-            <div class="book-info">
-              <div class="btitle">${l.titulo}</div>
-              <div class="bauthor">${l.autor}</div>
-              <div class="bavail ok">Disponível</div>
-            </div>
-          </div>
-        `).join('');
-      }
-
-    } catch(e) {
-      console.error('Erro ao carregar livros:', e);
-    }
-  }
-
-  carregarLivros();
 </script>
 </body>
 </html>
