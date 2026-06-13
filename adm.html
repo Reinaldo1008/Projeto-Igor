@@ -228,14 +228,27 @@
     <div class="page-section" id="page-alunos">
       <div class="section-head">
         <h2>Alunos</h2>
-        <button class="btn-sm btn-primary"><i class="fa-solid fa-user-plus"></i> Cadastrar Aluno</button>
+        <button class="btn-sm btn-primary" onclick="window.location.href='cadastro.html'"><i class="fa-solid fa-user-plus"></i> Cadastrar Aluno</button>
       </div>
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Nome</th><th>Matrícula</th><th>Curso</th><th>E-mail</th><th>Empréstimos</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody id="tabelaAlunos">
-            </tbody>
+            <thead><tr><th>Nome</th><th>CPF</th><th>E-mail</th><th>Empréstimos Ativos</th><th>Já Devolvidos</th><th>Ações</th></tr></thead>
+            <tbody id="tabelaAlunos"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DETALHE EMPRÉSTIMOS DO ALUNO -->
+      <div class="card" id="cardEmprestimosAluno" style="display:none;margin-top:16px">
+        <div class="card-header">
+          <h3 id="tituloEmprestimosAluno">Empréstimos</h3>
+          <button class="btn-sm btn-ghost" onclick="fecharEmprestimosUsuario('aluno')">Fechar</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Livro</th><th>Autor</th><th>Solicitação</th><th>Devolução Prevista</th><th>Status</th></tr></thead>
+            <tbody id="tabelaEmprestimosAluno"></tbody>
           </table>
         </div>
       </div>
@@ -243,13 +256,29 @@
 
     <!-- PROFESSORES -->
     <div class="page-section" id="page-professores">
-      <div class="section-head"><h2>Professores</h2><button class="btn-sm btn-primary"><i class="fa-solid fa-user-plus"></i> Cadastrar Professor</button></div>
+      <div class="section-head">
+        <h2>Professores</h2>
+        <button class="btn-sm btn-primary" onclick="window.location.href='cadastro.html'"><i class="fa-solid fa-user-plus"></i> Cadastrar Professor</button>
+      </div>
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Nome</th><th>ID Funcional</th><th>Departamento</th><th>E-mail</th><th>Empréstimos</th><th>Status</th></tr></thead>
-            <tbody id="tabelaProfessores">
-            </tbody>
+            <thead><tr><th>Nome</th><th>CPF</th><th>E-mail</th><th>Empréstimos Ativos</th><th>Já Devolvidos</th><th>Ações</th></tr></thead>
+            <tbody id="tabelaProfessores"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DETALHE EMPRÉSTIMOS DO PROFESSOR -->
+      <div class="card" id="cardEmprestimosProfessor" style="display:none;margin-top:16px">
+        <div class="card-header">
+          <h3 id="tituloEmprestimosProfessor">Empréstimos</h3>
+          <button class="btn-sm btn-ghost" onclick="fecharEmprestimosUsuario('professor')">Fechar</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Livro</th><th>Autor</th><th>Solicitação</th><th>Devolução Prevista</th><th>Status</th></tr></thead>
+            <tbody id="tabelaEmprestimosProfessor"></tbody>
           </table>
         </div>
       </div>
@@ -539,12 +568,105 @@ function sendSug(el) {
   msgs.scrollTop = msgs.scrollHeight;
 }
 
-const API = 'https://projeto-igor.onrender.com';
+const API = 'http://localhost:8000';
 
 function carregarDadosAdmin() {
   carregarEmprestimosAdmin();
   carregarAcervo();
   carregarMensagensAdmin();
+  carregarAlunos();
+  carregarProfessores();
+}
+
+// =========================================================================
+// ALUNOS E PROFESSORES
+// =========================================================================
+async function carregarAlunos() {
+  try {
+    const [respUsuarios, respEmps] = await Promise.all([
+      fetch(`${API}/usuarios`),
+      fetch(`${API}/emprestimos`)
+    ]);
+    const usuarios   = await respUsuarios.json();
+    const emprestimos = await respEmps.json();
+    const alunos = usuarios.filter(u => u.tipo === 'aluno');
+    renderUsuarios(alunos, emprestimos, 'tabelaAlunos', 'aluno');
+  } catch(e) { console.error('Erro ao carregar alunos:', e); }
+}
+
+async function carregarProfessores() {
+  try {
+    const [respUsuarios, respEmps] = await Promise.all([
+      fetch(`${API}/usuarios`),
+      fetch(`${API}/emprestimos`)
+    ]);
+    const usuarios    = await respUsuarios.json();
+    const emprestimos = await respEmps.json();
+    const professores = usuarios.filter(u => u.tipo === 'professor');
+    renderUsuarios(professores, emprestimos, 'tabelaProfessores', 'professor');
+  } catch(e) { console.error('Erro ao carregar professores:', e); }
+}
+
+function renderUsuarios(usuarios, emprestimos, tbodyId, tipo) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+
+  if (!usuarios.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#aaa">Nenhum ${tipo} cadastrado.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = usuarios.map(u => {
+    const empsUsuario = emprestimos.filter(e => e.cpf_aluno === u.cpf);
+    const ativos      = empsUsuario.filter(e => e.status === 'ativo').length;
+    const devolvidos  = empsUsuario.filter(e => e.status === 'devolvido').length;
+    return `
+      <tr>
+        <td>${u.nome}</td>
+        <td>${u.cpf}</td>
+        <td>${u.email}</td>
+        <td><span style="color:${ativos > 0 ? '#4caf7d' : '#aaa'};font-weight:600">${ativos}</span></td>
+        <td>${devolvidos}</td>
+        <td>
+          <button class="btn-sm" style="background:var(--blue-soft);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer"
+            onclick="verEmprestimosUsuario('${u.cpf}','${u.nome}','${tipo}')">
+            Ver Empréstimos
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+async function verEmprestimosUsuario(cpf, nome, tipo) {
+  try {
+    const resp = await fetch(`${API}/emprestimos/usuario/${cpf}`);
+    const emps = await resp.json();
+
+    const cardId  = tipo === 'aluno' ? 'cardEmprestimosAluno' : 'cardEmprestimosProfessor';
+    const tituloId = tipo === 'aluno' ? 'tituloEmprestimosAluno' : 'tituloEmprestimosProfessor';
+    const tbodyId  = tipo === 'aluno' ? 'tabelaEmprestimosAluno' : 'tabelaEmprestimosProfessor';
+
+    document.getElementById(tituloId).textContent = `Empréstimos de ${nome}`;
+    document.getElementById(cardId).style.display = 'block';
+    document.getElementById(cardId).scrollIntoView({ behavior: 'smooth' });
+
+    const tbody = document.getElementById(tbodyId);
+    tbody.innerHTML = emps.length
+      ? emps.map(e => `
+          <tr>
+            <td>${e.titulo_livro}</td>
+            <td>${e.autor_livro}</td>
+            <td>${e.data_solicitacao}</td>
+            <td>${e.data_devolucao_prevista || '—'}</td>
+            <td><span style="color:${statusCor(e.status)};font-weight:600">${statusLabel(e.status)}</span></td>
+          </tr>`).join('')
+      : '<tr><td colspan="5" style="text-align:center;color:#aaa">Nenhum empréstimo encontrado.</td></tr>';
+  } catch(e) { console.error('Erro ao buscar empréstimos:', e); }
+}
+
+function fecharEmprestimosUsuario(tipo) {
+  const cardId = tipo === 'aluno' ? 'cardEmprestimosAluno' : 'cardEmprestimosProfessor';
+  document.getElementById(cardId).style.display = 'none';
 }
 
 // =========================================================================
