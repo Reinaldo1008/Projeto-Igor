@@ -42,14 +42,6 @@
     <a class="nav-item" onclick="showPage('professores')">
       <i class="fa-solid fa-chalkboard-user"></i> Professores
     </a>
-    <div class="nav-section">Controle</div>
-    <a class="nav-item" onclick="showPage('atrasos')">
-      <i class="fa-solid fa-triangle-exclamation"></i> Atrasos
-      <span class="badge" id="badgeAtrasos">0</span>
-    </a>
-    <a class="nav-item" onclick="showPage('relatorios')">
-      <i class="fa-solid fa-chart-bar"></i> Relatórios
-    </a>
   </nav>
 
   <div class="sidebar-footer">
@@ -283,42 +275,6 @@
         </div>
       </div>
     </div>
-
-    <!-- ATRASOS -->
-    <div class="page-section" id="page-atrasos">
-      <div class="section-head"><h2>Atrasos</h2></div>
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Usuário</th><th>Matrícula</th><th>Livro</th><th>Devol. Prevista</th><th>Dias em Atraso</th><th>Ações</th></tr></thead>
-            <tbody id="tabelaAtrasos">
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="page-section" id="page-relatorios">
-      <div class="section-head"><h2>Relatórios</h2></div>
-      <div class="grid-3">
-        <div class="card" style="padding:20px;text-align:center;cursor:pointer">
-          <i class="fa-solid fa-file-csv" style="font-size:32px;color:var(--success);margin-bottom:10px"></i>
-          <div style="font-weight:600;color:var(--navy)">Exportar Empréstimos</div>
-          <div style="font-size:12px;color:var(--text-light);margin-top:4px">CSV com todos os registros</div>
-        </div>
-        <div class="card" style="padding:20px;text-align:center;cursor:pointer">
-          <i class="fa-solid fa-file-pdf" style="font-size:32px;color:var(--danger);margin-bottom:10px"></i>
-          <div style="font-weight:600;color:var(--navy)">Relatório de Atrasos</div>
-          <div style="font-size:12px;color:var(--text-light);margin-top:4px">PDF com pendências</div>
-        </div>
-        <div class="card" style="padding:20px;text-align:center;cursor:pointer">
-          <i class="fa-solid fa-chart-bar" style="font-size:32px;color:var(--blue-soft);margin-bottom:10px"></i>
-          <div style="font-weight:600;color:var(--navy)">Relatório Mensal</div>
-          <div style="font-size:12px;color:var(--text-light);margin-top:4px">Resumo de maio/2025</div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </main>
 
